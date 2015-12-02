@@ -1,25 +1,36 @@
 import UIKit
 import SpriteKit
 
-class GameViewController: UIViewController {
-
+class GameViewController: UIViewController,NADViewDelegate  {
+    private var nadView: NADView!
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let scene = GameScene(fileNamed:"GameScene") {
-            // Configure the view.
-            let skView = self.view as! SKView
-            skView.showsFPS = true
-            skView.showsNodeCount = true
-            
-            /* Sprite Kit applies additional optimizations to improve rendering performance */
-            skView.ignoresSiblingOrder = true
-            
-            /* Set the scale mode to scale to fit the window */
-            scene.scaleMode = .AspectFill
-            
-            skView.presentScene(scene)
-        }
+        let scene = TitleScene(size: UIScreen.mainScreen().bounds.size)
+        let skView = self.view as! SKView
+        /*
+        skView.showsFPS = true
+        skView.showsNodeCount = true
+        skView.ignoresSiblingOrder = true
+        skView.showsPhysics = true
+        scene.scaleMode = .AspectFill
+        */
+        showAd()
+        skView.presentScene(scene)
+    }
+
+    func showAd(){
+        nadView = NADView(frame: CGRect(x: 0, y: 0, width: 320, height: CommonConst.adHeight))
+        nadView.setNendID(CommonConst.adKey, spotID: CommonConst.adSpot)
+        nadView.isOutputLog = false
+        nadView.delegate = self
+        nadView.load()
+        self.view?.addSubview(nadView)
+    }
+    
+    override func loadView() {
+        let frame = UIScreen.mainScreen().bounds
+        self.view = SKView(frame: frame)
     }
 
     override func shouldAutorotate() -> Bool {
@@ -36,7 +47,6 @@ class GameViewController: UIViewController {
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Release any cached data, images, etc that aren't in use.
     }
 
     override func prefersStatusBarHidden() -> Bool {

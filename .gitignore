@@ -2,3 +2,4 @@ Assets.xcassets/
 Assets.xcassets
 Base.lproj/
 Info.plist
+Common/CommonConst.swift
