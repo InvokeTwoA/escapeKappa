@@ -35,7 +35,7 @@ class ItemNode: SKSpriteNode {
     // 物理を適用
     func setPhysic() {
         let physic = SKPhysicsBody(rectangleOfSize: CGSizeMake(CGFloat(width), CGFloat(height)))
-        physic.affectedByGravity = false
+        physic.affectedByGravity = true
         physic.allowsRotation = false
         physic.categoryBitMask = itemCategory
         physic.contactTestBitMask = downWorldCategory

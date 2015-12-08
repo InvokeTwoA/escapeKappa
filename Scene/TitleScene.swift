@@ -37,8 +37,11 @@ class TitleScene: BaseScene {
     }
     
     func setCharacter(){
-        setImage("kappa_32_32", key_name: "pic", point: CGPointMake(CGRectGetMinX(self.frame) + 40, CGRectGetMidY(self.frame) - 50))
-        setImage("maou_32_32", key_name: "pic", point: CGPointMake(CGRectGetMaxX(self.frame) - 40, CGRectGetMidY(self.frame) - 50))
+        setImage("kappa_32_32", key_name: "pic", point: CGPointMake(CGRectGetMinX(self.frame) + 40, CGRectGetMidY(self.frame) ))
+        setImage("maou_32_32", key_name: "pic", point: CGPointMake(CGRectGetMaxX(self.frame) - 40, CGRectGetMidY(self.frame)))
+        setImage("skelton_32_32", key_name: "pic", point: CGPointMake(CGRectGetMaxX(self.frame) - 40, CGRectGetMidY(self.frame) + 50))
+        setImage("knight_32_32", key_name: "pic", point: CGPointMake(CGRectGetMaxX(self.frame) - 40, CGRectGetMidY(self.frame) - 50))
+
     }
     
     // 他のアプリ画面へ
@@ -52,6 +55,7 @@ class TitleScene: BaseScene {
     
     // ゲーム画面へ
     func goGameScene(){
+        CommonData.setData("map_page", value: 0)
         let secondScene = StageSelectScene(size: self.frame.size)
         let tr = SKTransition.doorwayWithDuration(2)
         changeScene(secondScene, tr: tr)

@@ -1,5 +1,6 @@
 import SpriteKit
 class StageSelectScene: BaseScene {
+    let _page : Int = CommonData.getDataByInt("map_page")
     override func didMoveToView(view: SKView) {
         let point_y1 : CGFloat = CGRectGetMaxY(self.frame) - CGFloat(CommonConst.adHeight + CommonConst.textBlankHeight*2)
         let point_y2 : CGFloat = point_y1 - CGFloat(CommonConst.textBlankHeight * 2)
@@ -12,14 +13,17 @@ class StageSelectScene: BaseScene {
 //        let point_y9 : CGFloat = point_y8 - CGFloat(CommonConst.textBlankHeight * 2)
         setCenterBigText("ステージ選択", key_name: "title", point_y: point_y1)
         setCenterText("300点以上で次のステージ解放", key_name: "title", point_y: point_y2)
-//        setCenterButton("オープニング", key_name: "opening", point_y: point_y3)
-        stageBox("1章　はしれ、かっぱ", key: "stage1", point_y:  point_y4)
-        stageBox("2章　見切れ、かっぱ", key: "stage2", point_y:  point_y5)
-        stageBox("3章　まもれ、かっぱ", key: "stage3", point_y:  point_y6)
-        stageBox("4章　逃げろ、かっぱ", key: "stage4", point_y:  point_y7)
-        stageBox("5章　たおせ、かっぱ", key: "stage5", point_y:  point_y8)
-        if CommonData.getDataByInt("stage6_flag") == 1 {
-            setCenterButton("エンディング", key_name: "ending", point_y: point_y8)
+        if _page == 0 {
+            stageBox("１章　はしれ、かっぱ", key: "stage1", point_y:  point_y3)
+            stageBox("２章　見切れ、かっぱ", key: "stage2", point_y:  point_y4)
+            stageBox("３章　まもれ、かっぱ", key: "stage3", point_y:  point_y5)
+            stageBox("４章　逃げろ、かっぱ", key: "stage4", point_y:  point_y6)
+            stageBox("終章　たおせ、かっぱ", key: "stage5", point_y:  point_y7)
+            setCenterButton("外伝へ", key_name: "next", point_y: point_y8)
+        } else {
+            setCenterButton("裏面１ 重力世界のかっぱ", key_name: "stage6", point_y: point_y3)
+            setCenterButton("裏面２ 絶体絶命のかっぱ", key_name: "stage7", point_y: point_y4)
+            setCenterButton("前のステージへ", key_name: "back", point_y: point_y8)
         }
     }
     
@@ -34,10 +38,8 @@ class StageSelectScene: BaseScene {
     
     override func checkTochEvent(name: String) {
         switch name {
-        case "opening":
-            print("opening")
         case "stage1":
-            goStage1Scene()
+            goStage1()
         case "stage2":
             goStage2Scene()
         case "stage3":
@@ -46,20 +48,44 @@ class StageSelectScene: BaseScene {
             goStage4Scene()
         case "stage5":
             goStage5Scene()
-        case "ending":
-        print("ending")
+        case "stage6":
+            goStage6Scene()
+        case "stage7":
+            goStage7Scene()
+        case "next":
+            CommonData.setData("map_page", value: 1)
+            reloadScene()
+        case "back":
+            CommonData.setData("map_page", value: 0)
+            reloadScene()
         default:
             return
         }
     }
     
-    // 他のアプリ画面へ
-    func goHoka(){
-        let appID = CommonConst.kappaSagaId
-        let itunesURL:String = "itms-apps://itunes.apple.com/app/bars/id\(appID)"
-        let url = NSURL(string:itunesURL)
-        let app:UIApplication = UIApplication.sharedApplication()
-        app.openURL(url!)
+    func reloadScene(){
+        let secondScene = StageSelectScene(size: self.frame.size)
+        let tr = SKTransition.flipVerticalWithDuration(1)
+        changeScene(secondScene, tr: tr)
+    }
+    
+    func goStage1(){
+        if CommonData.getDataByInt("high_score_stage1") == 0 {
+            let alert: UIAlertController = UIAlertController(title:"ステージ１説明",
+                message: "iPhoneを傾ければカッパがその方向に動きます。\n\n炎をよけながら、敵に体当たりをして点数を稼ぎましょう。\n\nHPが減ったら薬に触れれば回復ができます。",
+                preferredStyle: UIAlertControllerStyle.Alert
+            )
+            let yesAction: UIAlertAction = UIAlertAction(title: "OK",
+                style: UIAlertActionStyle.Default,
+                handler:{
+                    (action:UIAlertAction) -> Void in
+                    self.goStage1Scene()
+            })
+            alert.addAction(yesAction)
+            self.view?.window?.rootViewController?.presentViewController(alert, animated: true, completion: nil)
+        } else {
+            goStage1Scene()
+        }
     }
     
     // ゲーム画面へ
@@ -88,10 +114,15 @@ class StageSelectScene: BaseScene {
         let tr = SKTransition.doorwayWithDuration(2)
         changeScene(secondScene, tr: tr)
     }
-    func goRule(){
-        let secondScene = RuleScene(size: self.frame.size)
-        let tr = SKTransition.flipHorizontalWithDuration(1)
+    func goStage6Scene(){
+        let secondScene = Stage6Scene(size: self.frame.size)
+        let tr = SKTransition.doorwayWithDuration(2)
         changeScene(secondScene, tr: tr)
-        
     }
+    func goStage7Scene(){
+        let secondScene = Stage7Scene(size: self.frame.size)
+        let tr = SKTransition.doorwayWithDuration(2)
+        changeScene(secondScene, tr: tr)
+    }
+    
 }

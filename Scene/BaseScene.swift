@@ -8,12 +8,15 @@ class BaseScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
     let motionManager = CMMotionManager()
     
     var _dx : Int = CommonData.getDataByInt("dx")
+    let _music_off = CommonData.getDataByBool("music_off")
     
     // 上がいて使う
     func baseSetting(){
     }
     func prepareBGM(fileName : String){
-
+        if _music_off == true {
+            return
+        }
         let bgm_path = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource(fileName, ofType: "mp3")!)
         var audioError:NSError?
         do {
@@ -30,6 +33,9 @@ class BaseScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
     }
     
     func playBGM(){
+        if _music_off == true {
+            return
+        }
         _audioPlayer.numberOfLoops = -1;
         if ( !_audioPlayer.playing ){
             _audioPlayer.play()
@@ -37,6 +43,9 @@ class BaseScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
     }
     
     func stopBGM(){
+        if _music_off == true {
+            return
+        }
         if ( _audioPlayer.playing ){
             _audioPlayer.stop()
         }
@@ -185,15 +194,33 @@ class BaseScene: SKScene, SKPhysicsContactDelegate, AVAudioPlayerDelegate {
     }
     
     // 衝突時など、火花を出す
-    func makeSpark(location: CGPoint?){
+    func makeSpark(location: CGPoint?, size :String = "normal"){
         if location == nil {
             return
         }
-        let particle = SparkEmitterNode.makeSpark()
+        let particle : SKEmitterNode
+        if size == "normal" {
+            particle = SparkEmitterNode.makeSpark()
+        } else {
+            particle = SparkEmitterNode.makeMiniSpark()
+        }
         particle.position = location!
         particle.zPosition = 1
         
         let fade : SKAction = SKAction.fadeOutWithDuration(4)
+        particle.runAction(fade)
+        self.addChild(particle)
+    }
+    
+    // 火を出す
+    func makeFire(location: CGPoint?){
+        if location == nil {
+            return
+        }
+        let particle = FireEmitterNode.makeFire()
+        particle.position = location!
+        particle.zPosition = 1
+        let fade : SKAction = SKAction.fadeOutWithDuration(3)
         particle.runAction(fade)
         self.addChild(particle)
     }

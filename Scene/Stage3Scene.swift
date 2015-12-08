@@ -4,6 +4,9 @@ class Stage3Scene: GameScene {
     override func checkScore(){
         if _score >= CommonConst.clearScore {
             CommonData.setData("stage4_flag", value: 1)
+            print("tassei")
+            reportAchievement("grp.hashireKappa.tassei2")
+            print("tassei end")
         }
     }
     

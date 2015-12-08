@@ -1,7 +1,7 @@
 import SpriteKit
 import CoreMotion
 import AVFoundation
-class GameScene: BaseScene  {
+class GameScene: GameBaseScene  {
     var _hp : Int       = 30
     var _maxhp : Int = 30
     var _lv = 1
@@ -20,19 +20,24 @@ class GameScene: BaseScene  {
     var _count_start_flag = false
     
     var _stage = 1
+    var _high_score = 0
     
     override func didMoveToView(view: SKView) {
+        self.physicsWorld.gravity = CGVectorMake(0.0, 0.0)
         setWorld()
-        setHeader()
         setFooter()
         setStageValue()
+        setHeader()
         setKappa()
         setDx()
         setMotion()
-        
         prepareBGM("tanoshii")
         self.physicsWorld.contactDelegate = self
         _stageHeight = CGRectGetMaxY(self.frame) - CGFloat(CommonConst.headerHeight + CommonConst.footerHeight)
+    }
+    
+    func setHighScore() {
+        _high_score = CommonData.getDataByInt("high_score_stage\(_stage)")
     }
     
     func setStageValue(){
@@ -40,8 +45,9 @@ class GameScene: BaseScene  {
     }
     
     func setHeader(){
-        let point : CGPoint = CGPoint(x:CGRectGetMidX(frame), y: CGRectGetMaxY(frame) - CGFloat(CommonConst.headerHeight)/2)
-        let size : CGSize = CGSizeMake(CGRectGetMaxX(frame), CGFloat(CommonConst.headerHeight))
+        let header_height = CommonConst.headerHeight - CommonConst.adHeight
+        let point : CGPoint = CGPoint(x:CGRectGetMidX(frame), y: CGRectGetMaxY(frame) - CGFloat(CommonConst.adHeight + header_height/2))
+        let size : CGSize = CGSizeMake(CGRectGetMaxX(frame), CGFloat(header_height))
         let color : UIColor = UIColor(red:0.2,green:0.2,blue:0.2,alpha:1.0)
         
         let background : SKSpriteNode = SKSpriteNode(color: color, size: size)
@@ -55,14 +61,24 @@ class GameScene: BaseScene  {
         physic.categoryBitMask = worldCategory | upWorldCategory
         background.physicsBody = physic
         
-        let name : SKLabelNode = SKLabelNode(fontNamed: CommonConst.font_regular)
-        name.text = "SCORE : 0"
-        name.fontSize = 18
-        name.position = CGPointMake(0, -20)
-        name.fontColor = UIColor.whiteColor()
-        name.name = "score"
-        background.addChild(name)
-        
+        // スコア表示
+        let score : SKLabelNode = SKLabelNode(fontNamed: CommonConst.font_regular)
+        score.text = "SCORE : 0"
+        score.fontSize = 18
+        score.position = CGPointMake(0, 0)
+        score.fontColor = UIColor.whiteColor()
+        score.name = "score"
+        background.addChild(score)
+
+        setHighScore()
+        let high_score : SKLabelNode = SKLabelNode(fontNamed: CommonConst.font_regular)
+        high_score.text = "HIGH_SCORE: \(_high_score)"
+        high_score.fontSize = 18
+        high_score.position = CGPointMake(0, -25)
+        high_score.fontColor = UIColor.whiteColor()
+        high_score.name = "high_score"
+        background.addChild(high_score)
+
         self.addChild(background)
     }
     
@@ -223,7 +239,7 @@ class GameScene: BaseScene  {
     
     // 敵と衝突時
     func hitEnemy(heroBody: SKPhysicsBody, enemyBody: SKPhysicsBody){
-        makeSpark(heroBody.node?.position)
+        makeSpark(heroBody.node?.position, size: "mini")
 
         // 敵を吹き飛ばす
         let enemyNode: SKSpriteNode = enemyBody.node as! SKSpriteNode
@@ -233,7 +249,7 @@ class GameScene: BaseScene  {
 
     // 炎と衝突時
     func hitFire(heroBody: SKPhysicsBody, fireBody: SKPhysicsBody){
-        makeSpark(heroBody.node?.position)
+        makeFire(heroBody.node?.position)
         damaged(7, point: (heroBody.node?.position)!, color: UIColor.redColor())
         fireBody.node?.removeFromParent()
     }
@@ -446,8 +462,7 @@ class GameScene: BaseScene  {
     
     // ゲームオーバー画面へ
     func goGameOver(){
-        let high_score = CommonData.getDataByInt("high_score_stage\(_stage)")
-        if _score > high_score {
+        if _score > _high_score {
             CommonData.setData("high_score_stage\(_stage)", value: _score)
         }
         CommonData.setData("score", value: _score)
@@ -465,6 +480,7 @@ class GameScene: BaseScene  {
         if _count_start_flag == true {
             return
         }
+        updateScore()
         _count_start_flag = true
         setCenterBigFadeText("3", key_name: "count3", point_y: CGRectGetMidY(self.frame), duration: 0.5)
         NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("readyStartCount2"), userInfo: nil, repeats: false)

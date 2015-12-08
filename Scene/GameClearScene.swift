@@ -1,7 +1,7 @@
 //ゲームオーバー画面
 import SpriteKit
-import Social
-class GameClearScene: BaseScene {
+import UIKit
+class GameClearScene: GameBaseScene {
     var _score = CommonData.getDataByInt("score")
     var _stage = CommonData.getDataByInt("stage")
     var _nickname = "勇者"
@@ -24,9 +24,14 @@ class GameClearScene: BaseScene {
         setCenterText("Thank you for Playing", key_name: "text1", point_y: y1)
         setCenterText("君こそ真の勇者！", key_name: "text1", point_y: y2)
         setCenterText("ステージ\(_stage)", key_name: "text1", point_y: y3)
-        setCenterText("SCORE: \(_score)", key_name: "text1", point_y: y4)
-        
-        setCenterButton("結果をつぶやく", key_name: "tweet", point_y: y8)
+ 
+        let high_score = CommonData.getDataByInt("high_score_stage\(_stage)")
+        if _score < high_score {
+            setCenterText("SCORE: \(_score)  (HIGH SCORE \(high_score))", key_name: "text1", point_y: y4)
+        } else {
+            setCenterText("SCORE: \(_score)  (ハイスコア達成！)", key_name: "text1", point_y: y4)
+        }
+        setCenterButton("ランキングを見る", key_name: "high_score", point_y: y8)
         setCenterButton("もう一回挑戦する", key_name: "retry", point_y: y9)
         setCenterButton("タイトルに戻る", key_name: "back", point_y: y10)
         setImage("knight_32_32",  key_name: "p", point: CGPoint(x:CGRectGetMidX(self.frame) + 100, y:y5))
@@ -39,6 +44,9 @@ class GameClearScene: BaseScene {
         setImage("fighter_32_32", key_name: "p", point: CGPoint(x:CGRectGetMidX(self.frame) - 50, y:y6))
         setImage("sister_32_32",  key_name: "p", point: CGPoint(x:CGRectGetMidX(self.frame) - 100, y:y6))
         setImage("witch_32_32",   key_name: "p", point: CGPoint(x:CGRectGetMidX(self.frame) + 100, y:y6))
+        
+        // ハイスコア送信
+        reportScore()
     }
     
     // タッチイベント
@@ -49,25 +57,17 @@ class GameClearScene: BaseScene {
             changeScene(nextScene, tr: tr)
         } else if name == "retry" {
             retryStage()
-        } else if name == "tweet" {
-            setTweet()
+        } else if name == "high_score" {
+            showLeaderboardScore()
         }
-    }
-    
-    func setTweet(){
-        let twitterCmp : SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
-        
-        twitterCmp.setInitialText("ゲームクリア！　スコア:\(_score) \(_nickname)  #走れ、勇者かっぱ")
-        let image = CommonUtil.screenShot(self.view!)
-        twitterCmp.addImage(image)
-        let currentViewController : UIViewController? = UIApplication.sharedApplication().keyWindow?.rootViewController!
-        
-        //ツイート画面を表示
-        currentViewController?.presentViewController(twitterCmp, animated: true, completion: nil)
     }
     
     func retryStage(){
         let tr = SKTransition.flipHorizontalWithDuration(1)
-        changeScene(Stage5Scene(size: self.frame.size), tr: tr)
+        if CommonData.getDataByInt("map_page") == 0 {
+            changeScene(Stage5Scene(size: self.frame.size), tr: tr)
+        } else {
+            changeScene(Stage7Scene(size: self.frame.size), tr: tr)
+        }
     }
 }

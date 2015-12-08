@@ -21,7 +21,7 @@ class EnemyNode: SKSpriteNode {
     // 物理を適用
     func setPhysic() {
         let physic = SKPhysicsBody(rectangleOfSize: CGSizeMake(30,32))
-        physic.affectedByGravity = false
+        physic.affectedByGravity = true
         physic.allowsRotation = true
         physic.categoryBitMask = enemyCategory
         physic.contactTestBitMask = downWorldCategory | enemyCategory | worldCategory | fireCategory | itemCategory | houseCategory | bossCategory

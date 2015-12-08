@@ -1,13 +1,13 @@
 import SpriteKit
-class Stage5Scene: GameScene {
-    var _bossHP = 50
+class Stage7Scene: GameScene {
+    var _bossHP = 55
     override func checkScore(){
     }
     
     override func setStageValue() {
-        _stage = 5
-        _maxhp = 30
-        _hp = 30
+        _stage = 7
+        _maxhp = 25
+        _hp = 25
         changeLifeBar()
         changeLifeLabel()
         setDragon()
@@ -15,8 +15,12 @@ class Stage5Scene: GameScene {
     
     func setDragon(){
         let object = BossNode.makeObject()
-        object.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - CGFloat(CommonConst.headerHeight + 32))
+        object.position = CGPointMake(CGRectGetMidX(self.frame) - 50, CGRectGetMaxY(self.frame) - CGFloat(CommonConst.headerHeight + 32))
         self.addChild(object)
+
+        let object2 = BossNode.makeObject()
+        object2.position = CGPointMake(CGRectGetMidX(self.frame) + 50, CGRectGetMaxY(self.frame) - CGFloat(CommonConst.headerHeight + 32))
+        self.addChild(object2)
     }
     
     override func bossContact(bossBody: SKPhysicsBody, contactBody: SKPhysicsBody){
@@ -39,7 +43,7 @@ class Stage5Scene: GameScene {
             self.addChild(object)
         }
     }
-
+    
     override func hitBoss(enemyBody: SKPhysicsBody, bossBody: SKPhysicsBody) {
         let enemyNode: SKSpriteNode = enemyBody.node as! SKSpriteNode
         let enemyHP : Int = enemyNode.userData?.valueForKey("hp") as! Int
@@ -69,6 +73,9 @@ class Stage5Scene: GameScene {
     }
     
     func gameClear(){
+        if _game_over_flag == true {
+            return
+        }
         _game_over_flag = true
         stopBGM()
         let high_score = CommonData.getDataByInt("high_score_stage\(_stage)")
@@ -78,9 +85,8 @@ class Stage5Scene: GameScene {
         CommonData.setData("score", value: _score)
         CommonData.setData("stage", value: _stage)
         checkScore()
-        reportAchievement("grp.hashireKappa.tassei3")
+        reportAchievement("grp.hashireKappa.tassei4")
         NSTimer.scheduledTimerWithTimeInterval(3.0, target: self, selector: Selector("goClearScene"), userInfo: nil, repeats: false)
-
     }
     
     func goClearScene(){
@@ -88,9 +94,8 @@ class Stage5Scene: GameScene {
         let tr = SKTransition.fadeWithColor(UIColor.whiteColor(), duration: 4)
         changeScene(secondScene, tr: tr)
     }
-    
     override func crashEnemy(firstBody: SKPhysicsBody, secondBody: SKPhysicsBody){
-            return
+        return
     }
     
     override func updateScore(){
@@ -106,14 +111,13 @@ class Stage5Scene: GameScene {
     }
     
     // オブジェクトの種別を選択
-    // 回復アイテムは出現しない
     override func chaseObjectType() -> String{
         switch CommonUtil.rnd(100) {
         case 0 ..< 10:
             return "item"
         case 10 ..< 50:
             return "enemy"
-        case 85 ..< 85 + _lv:
+        case 90 ..< 90 + _lv:
             return "fire"
         default:
             return ""

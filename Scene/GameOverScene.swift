@@ -1,7 +1,8 @@
 //ゲームオーバー画面
 import SpriteKit
 import Social
-class GameOverScene: BaseScene {
+import GameKit
+class GameOverScene: GameBaseScene {
     var _score = CommonData.getDataByInt("score")
     var _stage = CommonData.getDataByInt("stage")
     var _nickname = "勇者"
@@ -32,7 +33,10 @@ class GameOverScene: BaseScene {
         _score_text_y3 = y7
         displayScoreText()
         
-        setCenterButton("結果をつぶやく", key_name: "tweet", point_y: y8)
+        // ハイスコア送信
+        reportScore()
+        
+        setCenterButton("ランキングを見る", key_name: "high_score", point_y: y8)
         setCenterButton("もう一回挑戦する", key_name: "retry", point_y: y9)
         setCenterButton("タイトルに戻る", key_name: "back", point_y: y10)
     }
@@ -45,23 +49,11 @@ class GameOverScene: BaseScene {
             changeScene(nextScene, tr: tr)
         } else if name == "retry" {
             retryStage()
-        } else if name == "tweet" {
-            setTweet()
+        } else if name == "high_score" {
+            showLeaderboardScore()
         }
     }
     
-    func setTweet(){
-        let twitterCmp : SLComposeViewController = SLComposeViewController(forServiceType: SLServiceTypeTwitter)
-        
-        twitterCmp.setInitialText("スコア:\(_score) \(_nickname)  #走れ、勇者かっぱ")
-        let image = CommonUtil.screenShot(self.view!)
-        twitterCmp.addImage(image)
-        let currentViewController : UIViewController? = UIApplication.sharedApplication().keyWindow?.rootViewController!
-        
-        //ツイート画面を表示
-        currentViewController?.presentViewController(twitterCmp, animated: true, completion: nil)
-    }
-
     func retryStage(){
         let tr = SKTransition.flipHorizontalWithDuration(1)
         switch _stage {
@@ -75,6 +67,11 @@ class GameOverScene: BaseScene {
             changeScene(Stage4Scene(size: self.frame.size), tr: tr)
         case 5:
             changeScene(Stage5Scene(size: self.frame.size), tr: tr)
+        case 6:
+            changeScene(Stage6Scene(size: self.frame.size), tr: tr)
+        case 7:
+            changeScene(Stage7Scene(size: self.frame.size), tr: tr)
+
         default:
             print("stage=\(_stage)")
             changeScene(TitleScene(size: self.frame.size), tr: tr)
@@ -122,4 +119,6 @@ class GameOverScene: BaseScene {
         setCenterText(text2, key_name: "text1", point_y: _score_text_y3)
     }
     
+    
+
 }

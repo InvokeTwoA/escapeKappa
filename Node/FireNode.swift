@@ -25,7 +25,7 @@ class FireNode: SKSpriteNode {
     // 物理を適用
     func setPhysic() {
         let physic = SKPhysicsBody(rectangleOfSize: CGSizeMake(12, 12))
-        physic.affectedByGravity = false
+        physic.affectedByGravity = true
         physic.allowsRotation = false
         physic.categoryBitMask = fireCategory
         physic.contactTestBitMask = downWorldCategory | upWorldCategory
